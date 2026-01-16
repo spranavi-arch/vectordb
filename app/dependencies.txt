@@ -1,0 +1,31 @@
+from fastapi import FastAPI
+from app.core.logging import setup_logging
+from app.core.config import settings
+from app.services.chunking_service import ChunkingService
+from app.services.embedding_service import EmbeddingService
+from app.repositories.chroma_repository import ChromaRepository
+from app.services.vector_service import VectorService
+
+setup_logging()
+
+# ✅ ONE persist directory (single source of truth)
+PERSIST_DIR = settings.CHROMA_PERSIST_DIR
+
+chunker = ChunkingService(
+    settings.CHUNK_SIZE,
+    settings.CHUNK_OVERLAP
+)
+
+embedder = EmbeddingService(
+    settings.EMBEDDING_MODEL
+)
+
+repo = ChromaRepository(
+    persist_dir=PERSIST_DIR
+)
+
+vector_service = VectorService(
+    chunker=chunker,
+    embedder=embedder,
+    repo=repo
+)

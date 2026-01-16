@@ -1,0 +1,31 @@
+import chromadb
+from chromadb.config import Settings
+from app.core.logging import setup_logger
+
+logger = setup_logger("chroma")
+
+
+class ChromaClient:
+    def __init__(self):
+        try:
+            self.client = chromadb.Client(
+                Settings(
+                    persist_directory="./chroma_data",
+                    anonymized_telemetry=False
+                )
+            )
+            logger.info("ChromaDB client initialized with persistence")
+        except Exception as e:
+            logger.exception("Failed to initialize ChromaDB")
+            raise RuntimeError("ChromaDB initialization failed") from e
+
+    def get_collection(self, name: str):
+        return self.client.get_or_create_collection(name=name)
+
+    def persist(self):
+        """Force flush to disk"""
+        try:
+            self.client.persist()
+            logger.info("ChromaDB persisted to disk")
+        except Exception:
+            logger.exception("Failed to persist ChromaDB")

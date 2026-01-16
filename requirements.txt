@@ -1,0 +1,32 @@
+
+chromadb==0.3.23
+
+# Core API
+fastapi==0.110.0
+uvicorn[standard]==0.27.1
+
+# Database
+SQLAlchemy==2.0.29
+pymysql==1.1.0
+
+# Validation
+pydantic<2
+email-validator==2.1.1
+
+
+# File & OCR
+pillow==12.1.0
+pytesseract==0.3.13
+pdf2image==1.17.0
+python-multipart==0.0.21
+
+# Env
+python-dotenv==1.2.1
+
+# Vector search
+sentence-transformers>=2.6.1,<3
+
+
+
+
+
