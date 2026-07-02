@@ -13,28 +13,51 @@ The pattern:
 """
 
 from app.services.vector_service import VectorService
+from app.services.answer_service import AnswerService
 
 # Global reference to the VectorService instance
 # This is set in main.py after service initialization
 vector_service: VectorService | None = None
 
+# Global reference to the AnswerService instance (RAG /vector/ask)
+# This is set in main.py after service initialization
+answer_service: AnswerService | None = None
+
 
 def get_vector_service() -> VectorService:
     """
     Dependency injection function for FastAPI route handlers.
-    
+
     Returns the globally initialized VectorService instance. Can be used
     as a dependency in FastAPI route handlers via:
         @router.post("/endpoint")
         def my_route(vector_service = Depends(get_vector_service)):
             ...
-    
+
     Raises:
         RuntimeError: If VectorService hasn't been initialized yet
-        
+
     Returns:
         VectorService: The initialized service instance
     """
     if vector_service is None:
         raise RuntimeError("VectorService not initialized")
     return vector_service
+
+
+def get_answer_service() -> AnswerService:
+    """
+    Dependency injection function for the RAG /vector/ask route handler.
+
+    Mirrors get_vector_service() exactly: returns the globally initialized
+    AnswerService instance set by main.py at startup.
+
+    Raises:
+        RuntimeError: If AnswerService hasn't been initialized yet
+
+    Returns:
+        AnswerService: The initialized service instance
+    """
+    if answer_service is None:
+        raise RuntimeError("AnswerService not initialized")
+    return answer_service

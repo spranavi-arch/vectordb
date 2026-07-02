@@ -21,6 +21,8 @@ from app.core.dependencies import vector_service as vector_service_holder
 from app.services.chunking_service import ChunkingService
 from app.services.embedding_service import EmbeddingService
 from app.services.ocr_service import OCRService
+from app.services.rerank_service import RerankService
+from app.services.answer_service import AnswerService
 from app.repositories.chroma_repository import ChromaRepository
 from app.services.vector_service import VectorService
 
@@ -55,22 +57,37 @@ chroma_repo = ChromaRepository(
     persist_dir=settings.CHROMA_PERSIST_DIR
 )
 
+# RerankService: Cross-encoder second-pass reranking of retrieval candidates
+# (used when a search/ask request opts into rerank=True)
+reranker = RerankService(settings.RERANK_MODEL)
+
 # VectorService: Orchestrates all services together - handles document indexing,
 # searching, filtering, and metadata management
 vector_service_holder = VectorService(
     chunker=chunker,
     embedder=embedder,
     ocr=ocr,
-    repo=chroma_repo
+    repo=chroma_repo,
+    reranker=reranker,
+    rerank_overfetch=settings.RERANK_OVERFETCH
+)
+
+# AnswerService: Retrieval-augmented generation over VectorService, using
+# Google AI Studio's free-tier Gemini API (used by POST /vector/ask)
+answer_service_holder = AnswerService(
+    vector_service=vector_service_holder,
+    api_key=settings.GOOGLE_API_KEY,
+    model=settings.GEMINI_MODEL
 )
 
 # ============================================================================
 # DEPENDENCY INJECTION SETUP
 # ============================================================================
-# Store the service instance in the dependencies module so it can be
+# Store the service instances in the dependencies module so they can be
 # injected into route handlers via FastAPI's Depends() system
 import app.core.dependencies as deps
 deps.vector_service = vector_service_holder
+deps.answer_service = answer_service_holder
 
 # Include API routes
 app.include_router(router)

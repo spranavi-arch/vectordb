@@ -108,6 +108,21 @@ class ChromaRepository:
             where=filters
         )
 
+    def get_all(self, filters=None):
+        """
+        Fetch all documents (with metadata) matching an optional where clause,
+        without a similarity query. Used to build the candidate pool for
+        keyword-based (BM25) scoring in hybrid search.
+
+        Args:
+            filters: Optional Chroma where clause to narrow the pool
+
+        Returns:
+            dict with "ids", "documents", "metadatas" (flat lists, not
+            nested like query() results)
+        """
+        return self.collection.get(where=filters, include=["documents", "metadatas"])
+
     def count(self) -> int:
         """
         Get total number of chunks stored in the database.

@@ -28,6 +28,21 @@ class Settings(BaseSettings):
     MAX_TOKENS: int = 300
     OVERLAP_TOKENS: int = 50
 
+    # Cross-encoder reranking (sentence-transformers CrossEncoder - no extra
+    # dependency, ships with sentence-transformers)
+    RERANK_MODEL: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+    # How many candidates to over-fetch per requested top_k before reranking
+    # narrows back down. Reranking a pool the same size as top_k can only
+    # re-order it, not change membership - the overfetch is what lets
+    # reranking surface better results that dense/hybrid ranked outside top_k.
+    RERANK_OVERFETCH: int = 4
+
+    # RAG generation via Google AI Studio (Gemini API) - has a free tier,
+    # unlike most other hosted LLM APIs, so this is usable without billing.
+    # Get a free key at https://aistudio.google.com/apikey
+    GOOGLE_API_KEY: str = ""
+    GEMINI_MODEL: str = "gemini-2.5-flash"
+
     class Config:
         # Allow loading settings from .env file
         env_file = ".env"
@@ -37,4 +52,4 @@ class Settings(BaseSettings):
 settings = Settings()
 
 # Ensure the Chroma persistence directory exists
-Path(settings.CHROMA_PERSIST_DIR).mkdir(exist_ok=True)
+Path(settings.CHROMA_PERSIST_DIR).mkdir(parents=True, exist_ok=True)

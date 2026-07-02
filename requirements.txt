@@ -26,6 +26,12 @@ python-dotenv==1.2.1
 # Vector search
 sentence-transformers>=2.6.1,<3
 
+# Hybrid search (keyword/BM25 ranking, fused with dense retrieval)
+rank-bm25==0.2.2
+
+# RAG generation (Google AI Studio / Gemini API - free tier)
+google-genai>=0.3.0,<1
+
 
 
 
