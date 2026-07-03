@@ -1,0 +1,16 @@
+# Streamlit frontend dependencies.
+#
+# Kept separate from the backend's requirements.txt on purpose: Streamlit
+# pulls in newer starlette/uvicorn that conflict with the backend's pinned
+# FastAPI 0.110 stack. The frontend talks to the backend only over HTTP, so
+# it runs in its own virtual environment with no shared dependencies.
+#
+# Setup (from the project root):
+#   python -m venv venv-frontend
+#   venv-frontend\Scripts\activate      # Windows
+#   # source venv-frontend/bin/activate # macOS/Linux
+#   pip install -r requirements-frontend.txt
+#   streamlit run streamlit_app.py
+
+streamlit>=1.31,<2
+requests>=2.31,<3

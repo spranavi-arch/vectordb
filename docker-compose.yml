@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vectordb-backend
+    ports:
+      - "8001:8000"
+    environment:
+      - CHROMA_PERSIST_DIR=/data/chroma_data
+    env_file:
+      - .env
+    volumes:
+      # Persist the vector database across restarts
+      - chroma_data:/data/chroma_data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vectordb_network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: vectordb-frontend
+    ports:
+      - "8501:8501"
+    environment:
+      # Point at the backend container by hostname
+      # (resolves on the Docker network)
+      - API_BASE_URL=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - vectordb_network
+
+volumes:
+  chroma_data:
+
+networks:
+  vectordb_network:
+    driver: bridge

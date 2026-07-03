@@ -7,14 +7,23 @@ A **production-ready FastAPI-based vector search system** that enables semantic 
 
 ---
 
-## Quickstart (run it in 2 commands)
+## Quickstart (Docker Compose)
+
+**Recommended:** Both backend API and Streamlit frontend in containers — no local Python setup needed.
 
 ```bash
-docker build -t vectordb .
-docker run -p 8000:8000 --env-file .env vectordb
+docker-compose up
 ```
 
-Copy `.env.example` to `.env` first. Everything works out of the box except `/vector/ask`, which needs a **free** Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey) — no billing required. Then open `http://localhost:8000/docs` for interactive Swagger UI.
+Open **http://localhost:8501** for the Streamlit frontend. The backend API runs on **http://localhost:8000** (Swagger UI at `/docs`).
+
+**Optional:** To enable `/vector/ask` (RAG with Gemini), edit `docker-compose.yml` and uncomment `GOOGLE_API_KEY`, or set it inline:
+
+```bash
+docker-compose run -e GOOGLE_API_KEY=your_key backend
+```
+
+Get a free key from [Google AI Studio](https://aistudio.google.com/apikey) — no billing required.
 
 ---
 
@@ -403,16 +412,66 @@ cp .env.example .env  # add GOOGLE_API_KEY if you want /vector/ask to work
 
 ## ▶️ Running the Service
 
+### Docker Compose (Recommended)
+
+Both backend and frontend together:
+
 ```bash
+docker-compose up
+```
+
+Then open:
+- **Frontend:** http://localhost:8501
+- **Backend Swagger:** http://localhost:8000/docs
+
+### Local Setup (Advanced)
+
+If you prefer to run locally (requires Python 3.10+, Tesseract OCR, and Visual C++ build tools on Windows):
+
+```bash
+python -m venv venv
+venv\Scripts\activate        # Windows
+# source venv/bin/activate   # macOS/Linux
+pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-**Docker** (see [Quickstart](#quickstart-run-it-in-2-commands) above)
+Then in another terminal, run the frontend (see next section).
+
+---
+
+## 🖥️ Streamlit Frontend
+
+A lightweight [Streamlit](https://streamlit.io/) UI ([`streamlit_app.py`](streamlit_app.py)) sits over the API, with a tab for each endpoint:
+
+- **📥 Index** — drag-and-drop PDF/image upload
+- **🔍 Search** — semantic search with Hybrid/Rerank toggles and metadata filters
+- **💬 Ask** — RAG answers with expandable citations
+- **📊 Stats** — index statistics
+
+It talks to the backend purely over HTTP (nothing imported from `app/`), so the API can run anywhere.
+
+### Running with Docker Compose (Recommended)
 
 ```bash
-docker build -t vectordb .
-docker run -p 8000:8000 --env-file .env vectordb
+docker-compose up
 ```
+
+Open http://localhost:8501. The frontend automatically connects to the backend at `http://backend:8000` (on the Docker network).
+
+### Running Locally (Advanced)
+
+If running the backend locally:
+
+```bash
+python -m venv venv-frontend
+venv-frontend\Scripts\activate        # Windows
+# source venv-frontend/bin/activate   # macOS/Linux
+pip install -r requirements-frontend.txt
+streamlit run streamlit_app.py
+```
+
+The sidebar lets you change the backend URL (or set `API_BASE_URL`; defaults to `http://localhost:8000`).
 
 ---
 
@@ -426,6 +485,7 @@ docker run -p 8000:8000 --env-file .env vectordb
 * DuckDB + Parquet
 * Tesseract OCR
 * Pydantic
+* Streamlit (frontend UI)
 
 ---
 

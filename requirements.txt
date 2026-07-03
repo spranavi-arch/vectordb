@@ -1,5 +1,4 @@
-
-chromadb==0.3.23
+chromadb>=0.4.0,<1.0.0
 
 # Core API
 fastapi==0.110.0
@@ -10,12 +9,13 @@ SQLAlchemy==2.0.29
 pymysql==1.1.0
 
 # Validation
-pydantic<2
+pydantic>=2.0.0,<3.0.0
+pydantic-settings>=2.0.0,<3.0.0
 email-validator==2.1.1
 
 
 # File & OCR
-pillow==12.1.0
+pillow>=10.0.0,<12.0.0
 pytesseract==0.3.13
 pdf2image==1.17.0
 python-multipart==0.0.21

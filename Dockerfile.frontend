@@ -1,0 +1,24 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN pip install --upgrade pip setuptools wheel
+
+COPY requirements-frontend.txt .
+RUN pip install -r requirements-frontend.txt
+
+COPY streamlit_app.py .
+
+# Disable telemetry and run on 0.0.0.0 so it's accessible from outside the container
+ENV STREAMLIT_SERVER_HEADLESS=true \
+    STREAMLIT_SERVER_ADDRESS=0.0.0.0 \
+    STREAMLIT_SERVER_PORT=8501 \
+    STREAMLIT_CLIENT_SHOW_ERROR_DETAILS=true
+
+# Point at the backend container by name (resolves on Docker network)
+# Override with API_BASE_URL env var if running on a different host/port
+ENV API_BASE_URL=http://backend:8000
+
+EXPOSE 8501
+
+CMD ["streamlit", "run", "streamlit_app.py"]
